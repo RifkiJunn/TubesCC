@@ -17,10 +17,10 @@
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             }
             .glass-card {
-                background: #ffffff;
+                background: rgba(15, 23, 42, 0.85);
                 backdrop-filter: blur(20px);
-                border: 1px solid rgba(99, 102, 241, 0.15);
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.5);
+                border: 1px solid rgba(99, 102, 241, 0.25);
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1);
             }
             .floating {
                 animation: floating 3s ease-in-out infinite;
@@ -151,7 +151,7 @@
 
                 <!-- Card -->
                 <div class="w-full max-w-md slide-up relative z-10">
-                    <div class="glass-card dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 dark:border-indigo-800/30 rounded-3xl shadow-2xl p-8 sm:p-10">
+                <div class="glass-card dark:bg-gradient-to-br dark:from-gray-800 dark:via-gray-800 dark:to-gray-900 dark:border-indigo-800/30 rounded-3xl shadow-2xl p-6 sm:p-8">
                         {{ $slot }}
                     </div>
 
