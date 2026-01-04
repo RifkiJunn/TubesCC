@@ -1,23 +1,21 @@
 #!/bin/bash
 
-# startup.sh - Azure Web App Startup Script for Laravel
+# Copy nginx config to enable Laravel public folder
+cp /home/site/wwwroot/default /etc/nginx/sites-available/default
+service nginx reload
 
-# Navigate to web root
 cd /home/site/wwwroot
 
-# Install Composer dependencies if needed
-if [ ! -d "vendor" ]; then
-    composer install --no-dev --optimize-autoloader
-fi
+# Run package discovery (skipped during CI build)
+php artisan package:discover --ansi
 
-# Set permissions
-chmod -R 755 storage bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache
+# Run migrations with seeding
+php artisan migrate --seed --force
 
-# Run Laravel optimizations
+# Clear and cache config
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# Start PHP-FPM
-php-fpm
+# Create storage link if not exists
+php artisan storage:link 2>/dev/null || true
