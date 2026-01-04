@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SlotController;
+use App\Http\Controllers\AdminUserController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 
@@ -93,5 +94,11 @@ Route::middleware('auth')->group(function () {
 
 // Midtrans Callback (tanpa auth)
 Route::post('/midtrans/callback', [SlotController::class, 'callback'])->name('midtrans.callback');
+
+// --- ADMIN ROUTES ---
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+});
 
 require __DIR__.'/auth.php';
