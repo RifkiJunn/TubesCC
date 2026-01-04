@@ -38,7 +38,9 @@ return [
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-        'redirect' => env('GOOGLE_REDIRECT_URI', env('APP_URL', 'http://localhost:8000') . '/auth/google/callback'),
+        // Always construct from APP_URL to match Google Console exactly
+        // This avoids mismatch errors if GOOGLE_REDIRECT_URI is set to just the domain
+        'redirect' => env('APP_URL') . '/auth/google/callback',
     ],
 
 ];
