@@ -9,8 +9,8 @@ cd /home/site/wwwroot
 # Run package discovery (skipped during CI build)
 php artisan package:discover --ansi
 
-# Run migrations with seeding
-php artisan migrate --seed --force
+# Run migrations without seeding
+php artisan migrate --force
 
 # Clear and cache config
 php artisan config:cache
