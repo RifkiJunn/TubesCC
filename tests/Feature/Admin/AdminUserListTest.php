@@ -82,16 +82,32 @@ describe('Admin User Search', function () {
 });
 
 describe('Admin User Filter', function () {
-    it('filters by subscribed status', function () {
-        $subscribedUser = User::factory()->create(['product_limit' => 10, 'name' => 'SubscribedUser']);
-        $freeUser = User::factory()->create(['product_limit' => 3, 'name' => 'FreeUser']);
+    it('filters by subscribed users including those with transactions', function () {
+        // User with > 3 slots
+        $highLimitUser = User::factory()->create(['product_limit' => 4, 'name' => 'HighLimitUser']);
         
+        // User with default slots but successful transaction
+        $transactionUser = User::factory()->create(['product_limit' => 3, 'name' => 'TransactionUser']);
+        $transactionUser->transactions()->create([
+            'order_id' => 'ORD-123',
+            'amount' => 50000,
+            'slots_purchased' => 5,
+            'payment_type' => 'qris',
+            'status' => 'success',
+            'snap_token' => 'token'
+        ]);
+        
+        // Regular user
+        $regularUser = User::factory()->create(['product_limit' => 3, 'name' => 'RegularUser']);
+
         $response = $this->actingAs($this->admin)
             ->get(route('admin.users.index', ['subscription' => 'subscribed']));
         
-        $response->assertSee('SubscribedUser');
+        $response->assertSee('HighLimitUser');
+        $response->assertSee('TransactionUser');
+        $response->assertDontSee('RegularUser');
     });
-    
+
     it('filters by role admin', function () {
         $response = $this->actingAs($this->admin)
             ->get(route('admin.users.index', ['role' => 'admin']));
@@ -108,7 +124,17 @@ describe('Admin User Filter', function () {
 });
 
 describe('Admin User Detail', function () {
-    it('shows user detail page', function () {
+    it('shows user detail page with transaction history', function () {
+        // Create transactions for user
+        $this->user->transactions()->create([
+            'order_id' => 'ORD-TEST-1',
+            'amount' => 50000,
+            'slots_purchased' => 5,
+            'payment_type' => 'qris',
+            'status' => 'success',
+            'snap_token' => 'token1'
+        ]);
+
         $response = $this->actingAs($this->admin)
             ->get(route('admin.users.show', $this->user));
         
@@ -116,6 +142,11 @@ describe('Admin User Detail', function () {
         $response->assertViewIs('admin.users.show');
         $response->assertSee($this->user->name);
         $response->assertSee($this->user->email);
+        
+        // Check for transaction details
+        $response->assertSee('Riwayat Transaksi Terakhir');
+        $response->assertSee('ORD-TEST-1');
+        $response->assertSee('Sukses');
     });
     
     it('prevents non-admin from viewing user detail', function () {

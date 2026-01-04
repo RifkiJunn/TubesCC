@@ -184,7 +184,7 @@
                                             @endif
                                         </td>
                                         <td class="px-6 py-4">
-                                            @if($user->product_limit > 3)
+                                            @if($user->is_subscribed)
                                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">
                                                     <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
                                                     Subscribed ({{ $user->product_limit }} slot)

@@ -27,9 +27,19 @@ class AdminUserController extends Controller
         // Filter by subscription status
         if ($request->filled('subscription')) {
             if ($request->subscription === 'subscribed') {
-                $query->where('product_limit', '>', 3);
+                $query->where(function ($q) {
+                    $q->where('product_limit', '>', 3)
+                      ->orWhereHas('transactions', function ($t) {
+                          $t->where('status', 'success');
+                      });
+                });
             } elseif ($request->subscription === 'not_subscribed') {
-                $query->where('product_limit', '<=', 3);
+                $query->where(function ($q) {
+                    $q->where('product_limit', '<=', 3)
+                      ->whereDoesntHave('transactions', function ($t) {
+                          $t->where('status', 'success');
+                      });
+                });
             }
         }
 
@@ -52,9 +62,20 @@ class AdminUserController extends Controller
      */
     public function show(User $user)
     {
-        // Load related data
+        // Load related data counts
         $user->loadCount(['products', 'transactions']);
         
-        return view('admin.users.show', compact('user'));
+        // Load transaction history (latest first)
+        $user->load(['transactions' => function ($query) {
+            $query->latest()->limit(10);
+        }]);
+        
+        // Get last successful slot purchase
+        $lastPurchase = $user->transactions()
+            ->where('status', 'success')
+            ->latest()
+            ->first();
+        
+        return view('admin.users.show', compact('user', 'lastPurchase'));
     }
 }

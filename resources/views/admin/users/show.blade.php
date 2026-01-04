@@ -41,7 +41,7 @@
                                         Admin
                                     </span>
                                 @endif
-                                @if($user->product_limit > 3)
+                                @if($user->is_subscribed)
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">
                                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
                                         Subscribed
@@ -103,6 +103,15 @@
                             <p class="text-gray-800 dark:text-white font-medium">{{ $user->product_limit ?? 3 }} slot</p>
                         </div>
                         <div>
+                            <p class="text-xs text-gray-400 uppercase tracking-wider">Pembelian Terakhir</p>
+                            @if(isset($lastPurchase))
+                                <p class="text-gray-800 dark:text-white font-medium">{{ $lastPurchase->created_at->format('d F Y, H:i') }}</p>
+                                <p class="text-xs text-green-600 dark:text-green-400">+{{ $lastPurchase->slots_purchased }} Slot (Rp {{ number_format($lastPurchase->amount, 0, ',', '.') }})</p>
+                            @else
+                                <p class="text-gray-500 dark:text-gray-400 font-medium">-</p>
+                            @endif
+                        </div>
+                        <div>
                             <p class="text-xs text-gray-400 uppercase tracking-wider">Tanggal Registrasi</p>
                             <p class="text-gray-800 dark:text-white font-medium">{{ $user->created_at->format('d F Y, H:i') }}</p>
                             <p class="text-xs text-gray-400">{{ $user->created_at->diffForHumans() }}</p>
@@ -162,8 +171,75 @@
                 </div>
             </div>
 
+            </div>
+
+            {{-- Transaction History --}}
+            <div class="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                    <h4 class="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Riwayat Transaksi Terakhir
+                    </h4>
+                </div>
+                
+                @if($user->transactions && $user->transactions->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-900">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tanggal</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-100 dark:divide-gray-700">
+                            @foreach($user->transactions as $transaction)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-600 dark:text-gray-400">
+                                        {{ $transaction->order_id }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                                        {{ $transaction->created_at->format('d M Y H:i') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                                        {{ $transaction->slots_purchased }} Slot
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800 dark:text-white">
+                                        Rp {{ number_format($transaction->amount, 0, ',', '.') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($transaction->status == 'success')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300">
+                                                Sukses
+                                            </span>
+                                        @elseif($transaction->status == 'pending')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300">
+                                                Pending
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300">
+                                                {{ ucfirst($transaction->status) }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                    <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+                        Belum ada riwayat transaksi
+                    </div>
+                @endif
+            </div>
+
             {{-- Back Button --}}
-            <div class="flex justify-center">
+            <div class="flex justify-center mt-8">
                 <a href="{{ route('admin.users.index') }}" class="inline-flex items-center px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl transition">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>

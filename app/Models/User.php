@@ -77,4 +77,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaction::class);
     }
+
+    /**
+     * Check if user is subscribed (has > 3 slots OR has successful transactions)
+     */
+    public function getIsSubscribedAttribute(): bool
+    {
+        return $this->product_limit > 3 || $this->transactions()->where('status', 'success')->exists();
+    }
 }
