@@ -46,20 +46,18 @@ pipeline {
         
         stage('Deploy to Azure') {
             steps {
-                withCredentials([azureServicePrincipal('azure-credentials')]) {
+                withCredentials([usernamePassword(credentialsId: 'azure-webapp-deploy', usernameVariable: 'AZURE_USER', passwordVariable: 'AZURE_PASS')]) {
                     sh '''
-                        # Login to Azure
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-                        
-                        # Deploy to Web App
+                        # Create deployment package
                         cd deployment
                         zip -r ../deploy.zip .
                         cd ..
                         
-                        az webapp deployment source config-zip \
-                            --resource-group $AZURE_RESOURCE_GROUP \
-                            --name $AZURE_APP_NAME \
-                            --src deploy.zip
+                        # Deploy using Zip Deploy API
+                        curl -X POST \
+                            -u $AZURE_USER:$AZURE_PASS \
+                            --data-binary @deploy.zip \
+                            https://tubescc-lungsur-app.scm.azurewebsites.net/api/zipdeploy
                     '''
                 }
             }
@@ -67,10 +65,16 @@ pipeline {
         
         stage('Run Migrations') {
             steps {
-                sh '''
-                    # Run migrations on Azure Web App
-                    az webapp ssh --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_APP_NAME --command "php artisan migrate --force"
-                '''
+                withCredentials([usernamePassword(credentialsId: 'azure-webapp-deploy', usernameVariable: 'AZURE_USER', passwordVariable: 'AZURE_PASS')]) {
+                    sh '''
+                        # Run migrations using Kudu API
+                        curl -X POST \
+                            -u $AZURE_USER:$AZURE_PASS \
+                            -H "Content-Type: application/json" \
+                            -d '{"command":"cd /home/site/wwwroot && php artisan migrate --force && php artisan config:cache","dir":"/home/site/wwwroot"}' \
+                            https://tubescc-lungsur-app.scm.azurewebsites.net/api/command
+                    '''
+                }
             }
         }
     }
