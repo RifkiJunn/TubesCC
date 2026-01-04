@@ -1,21 +1,22 @@
 #!/bin/bash
 
-# Copy nginx config to enable Laravel public folder
-cp /home/site/wwwroot/default /etc/nginx/sites-available/default
-service nginx reload
-
+# Navigate to app directory
 cd /home/site/wwwroot
 
-# Run package discovery (skipped during CI build)
-php artisan package:discover --ansi
+# Copy nginx config and reload
+if [ -f "/home/site/wwwroot/default" ]; then
+    cp /home/site/wwwroot/default /etc/nginx/sites-available/default
+    service nginx reload
+fi
 
-# Run migrations without seeding
-php artisan migrate --force
+# Run Laravel optimizations
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
 
-# Clear and cache config
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# Only run migrations if not already done
+php artisan migrate --force 2>/dev/null || true
 
 # Create storage link if not exists
 php artisan storage:link 2>/dev/null || true
