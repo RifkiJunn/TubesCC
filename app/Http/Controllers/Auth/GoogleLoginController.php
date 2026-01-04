@@ -17,14 +17,14 @@ class GoogleLoginController extends Controller
     {
         try {
             // Ensure we have the correct redirect URL
-            $redirectUrl = url('/auth/google/callback');
-            
+            $redirectUrl = config('services.google.redirect');
+
             // Check if credentials are set
             if (empty(config('services.google.client_id')) || empty(config('services.google.client_secret'))) {
                 return redirect()->route('login')
                     ->with('error', 'Google OAuth credentials belum dikonfigurasi. Silakan hubungi administrator.');
             }
-            
+
             // Configure HTTP client to disable SSL verification for development
             $httpClient = null;
             if (config('app.env') === 'local' || config('app.debug')) {
@@ -32,14 +32,14 @@ class GoogleLoginController extends Controller
                     'verify' => false, // Disable SSL verification for development
                 ]);
             }
-            
+
             $socialite = Socialite::driver('google')
                 ->redirectUrl($redirectUrl);
-            
+
             if ($httpClient) {
                 $socialite->setHttpClient($httpClient);
             }
-            
+
             return $socialite->redirect();
         } catch (\Exception $e) {
             return redirect()->route('login')
@@ -60,13 +60,13 @@ class GoogleLoginController extends Controller
                     'verify' => false, // Disable SSL verification for development
                 ]);
             }
-            
+
             $socialite = Socialite::driver('google');
-            
+
             if ($httpClient) {
                 $socialite->setHttpClient($httpClient);
             }
-            
+
             $googleUser = $socialite->user();
 
             // Check if user exists with this Google ID
@@ -75,7 +75,7 @@ class GoogleLoginController extends Controller
             if (!$user) {
                 // Check if user exists with same email
                 $user = User::where('email', $googleUser->getEmail())->first();
-                
+
                 if ($user) {
                     // Link Google account to existing user
                     $user->google_id = $googleUser->getId();
@@ -109,12 +109,12 @@ class GoogleLoginController extends Controller
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-            
+
             // Show detailed error in development, generic message in production
-            $errorMessage = config('app.debug') 
-                ? 'Gagal login dengan Google: ' . $e->getMessage() 
+            $errorMessage = config('app.debug')
+                ? 'Gagal login dengan Google: ' . $e->getMessage()
                 : 'Gagal login dengan Google. Silakan coba lagi atau gunakan email/password.';
-            
+
             return redirect()->route('login')
                 ->with('error', $errorMessage);
         }
