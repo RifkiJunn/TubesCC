@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     environment {
-        AZURE_APP_NAME = 'tubescc-lungsur-app'
+        AZURE_APP_NAME = 'tubescc-lungsur-app-final'
         AZURE_RESOURCE_GROUP = 'TubesCloud'
     }
     
@@ -57,7 +57,7 @@ pipeline {
                         curl -X POST \
                             -u $AZURE_USER:$AZURE_PASS \
                             --data-binary @deploy.zip \
-                            https://tubescc-lungsur-app.scm.azurewebsites.net/api/zipdeploy
+                            https://${AZURE_APP_NAME}.scm.azurewebsites.net/api/zipdeploy
                     '''
                 }
             }
@@ -72,7 +72,7 @@ pipeline {
                             -u $AZURE_USER:$AZURE_PASS \
                             -H "Content-Type: application/json" \
                             -d '{"command":"cd /home/site/wwwroot && php artisan migrate --force && php artisan config:cache","dir":"/home/site/wwwroot"}' \
-                            https://tubescc-lungsur-app.scm.azurewebsites.net/api/command
+                            https://${AZURE_APP_NAME}.scm.azurewebsites.net/api/command
                     '''
                 }
             }
