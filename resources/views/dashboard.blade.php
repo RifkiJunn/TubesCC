@@ -335,13 +335,32 @@
                                                     </span>
                                                 @endif
                                             </td>
-                                            <td class="px-6 py-4 text-right">
-                                                <a href="{{ route('products.edit', $item->id) }}" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition">
-                                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                    </svg>
-                                                    Edit
-                                                </a>
+                                            <td class="px-6 py-4 text-right space-x-2">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    <!-- Toggle Status Form -->
+                                                    <form action="{{ route('products.status', $item->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <button type="submit" 
+                                                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg transition border {{ $item->status == 'available' ? 'border-green-200 text-green-700 hover:bg-green-50' : 'border-gray-200 text-gray-600 hover:bg-gray-50' }}"
+                                                            title="{{ $item->status == 'available' ? 'Tandai Terjual' : 'Tandai Tersedia' }}">
+                                                            @if($item->status == 'available')
+                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                                Mark Sold
+                                                            @else
+                                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                                                Restock
+                                                            @endif
+                                                        </button>
+                                                    </form>
+
+                                                    <a href="{{ route('products.edit', $item->id) }}" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        </svg>
+                                                        Edit
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach

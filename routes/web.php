@@ -85,6 +85,7 @@ Route::middleware('auth')->group(function () {
     // 3. Edit Barang (Edit & Update) - [TAMBAHAN BARU]
     Route::get('/barang/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::put('/barang/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::patch('/barang/{product}/status', [ProductController::class, 'updateStatus'])->name('products.status');
 
     // 4. Beli Slot
     Route::get('/beli-slot', [SlotController::class, 'index'])->name('slots.index');

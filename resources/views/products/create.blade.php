@@ -106,20 +106,31 @@
                                 class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-gray-800 dark:text-white placeholder-gray-400 resize-none">{{ old('description') }}</textarea>
                         </div>
                         
-                        <!-- Lokasi Kampus -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                                Lokasi COD <span class="text-red-500">*</span>
-                            </label>
-                            <select name="campus_location" required
-                                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-gray-800 dark:text-white">
-                                <option value="" disabled selected>-- Pilih Lokasi Kampus --</option>
-                                <option value="Kampus Pusat (Buah Batu)" {{ old('campus_location') == 'Kampus Pusat (Buah Batu)' ? 'selected' : '' }}>Kampus Pusat (Buah Batu)</option>
-                                <option value="Kampus Gegerkalong" {{ old('campus_location') == 'Kampus Gegerkalong' ? 'selected' : '' }}>Kampus Gegerkalong</option>
-                                <option value="Asrama Putra" {{ old('campus_location') == 'Asrama Putra' ? 'selected' : '' }}>Asrama Putra</option>
-                                <option value="Asrama Putri" {{ old('campus_location') == 'Asrama Putri' ? 'selected' : '' }}>Asrama Putri</option>
-                                <option value="Luar Kampus (COD Terdekat)" {{ old('campus_location') == 'Luar Kampus (COD Terdekat)' ? 'selected' : '' }}>Luar Kampus (COD Terdekat)</option>
-                            </select>
+                        <!-- Lokasi : Provinsi & Kota -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Provinsi <span class="text-red-500">*</span>
+                                </label>
+                                <select id="province-select" required
+                                    class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-gray-800 dark:text-white">
+                                    <option value="" disabled selected>-- Pilih Provinsi --</option>
+                                    <!-- Options populated by JS -->
+                                </select>
+                                <input type="hidden" name="province" id="province-input">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                                    Kota/Kabupaten <span class="text-red-500">*</span>
+                                </label>
+                                <select id="city-select" required disabled
+                                    class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-gray-800 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <option value="" disabled selected>-- Pilih Kota --</option>
+                                    <!-- Options populated by JS -->
+                                </select>
+                                <input type="hidden" name="city" id="city-input">
+                            </div>
                         </div>
 
                         <!-- GPS Location -->
@@ -181,6 +192,58 @@
     </div>
 
     <script>
+        // API Base URL
+        const apiBaseUrl = 'https://www.emsifa.com/api-wilayah-indonesia/api';
+
+        const provinceSelect = document.getElementById('province-select');
+        const citySelect = document.getElementById('city-select');
+        const provinceInput = document.getElementById('province-input');
+        const cityInput = document.getElementById('city-input');
+
+        // Fetch Provinces
+        fetch(`${apiBaseUrl}/provinces.json`)
+            .then(response => response.json())
+            .then(provinces => {
+                provinces.forEach(province => {
+                    const option = document.createElement('option');
+                    option.value = province.id;
+                    option.text = province.name;
+                    provinceSelect.appendChild(option);
+                });
+            });
+
+        // On Province Change
+        provinceSelect.addEventListener('change', function() {
+            const provinceId = this.value;
+            const provinceName = this.options[this.selectedIndex].text;
+            
+            // Set hidden input
+            provinceInput.value = provinceName;
+
+            // Enable city select and clear options
+            citySelect.disabled = false;
+            citySelect.innerHTML = '<option value="" disabled selected>-- Pilih Kota --</option>';
+            cityInput.value = ''; // Reset city
+
+            // Fetch Cities
+            fetch(`${apiBaseUrl}/regencies/${provinceId}.json`)
+                .then(response => response.json())
+                .then(cities => {
+                    cities.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city.id;
+                        option.text = city.name;
+                        citySelect.appendChild(option);
+                    });
+                });
+        });
+
+        // On City Change
+        citySelect.addEventListener('change', function() {
+            const cityName = this.options[this.selectedIndex].text;
+            cityInput.value = cityName;
+        });
+
         function getLocation() {
             const status = document.getElementById('status-gps');
             const latInput = document.getElementById('latitude');
