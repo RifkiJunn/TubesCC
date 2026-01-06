@@ -16,6 +16,8 @@ class Product extends Model
         'description',
         'price',
         'campus_location', // <--- Tambah ini
+        'province',
+        'city',
         'image',
         'status',
         'latitude',

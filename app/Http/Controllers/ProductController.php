@@ -42,7 +42,9 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
-            'campus_location' => 'required|string',
+            'campus_location' => 'nullable|string', // Jadi opsional
+            'province' => 'required|string',
+            'city' => 'required|string',
         ]);
 
         // 5. Upload Gambar (Jika ada)
@@ -62,6 +64,8 @@ class ProductController extends Controller
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
             'campus_location' => $request->campus_location,
+            'province' => $request->province,
+            'city' => $request->city,
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Barang berhasil diiklankan!');
@@ -118,5 +122,21 @@ class ProductController extends Controller
         $product->update($data);
 
         return redirect()->route('dashboard')->with('success', 'Barang berhasil diperbarui!');
+    }
+
+    // Toggle Status Barang (Available <-> Sold) via Dashboard
+    public function updateStatus(Request $request, Product $product)
+    {
+        if (Auth::id() !== $product->user_id) {
+            abort(403);
+        }
+
+        // Validasi status yang dikirim 
+        // (optional, bisa juga hardcode toggle saja)
+        $newStatus = $product->status === 'available' ? 'sold' : 'available';
+        
+        $product->update(['status' => $newStatus]);
+
+        return back()->with('success', 'Status barang berhasil diperbarui!');
     }
 }
