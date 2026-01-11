@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    options {
+        skipDefaultCheckout(true)
+    }
 
     stages {
         stage('Checkout') {
@@ -10,7 +13,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                echo 'Install dependency Lungsurin'
+                echo 'Simulasi install dependency Lungsurin'
             }
         }
 
@@ -26,4 +29,14 @@ pipeline {
             }
         }
     }
+
+    post {
+        success {
+            echo 'Success'
+        }
+        failure {
+            echo 'Failed'
+        }
+    }
 }
+
