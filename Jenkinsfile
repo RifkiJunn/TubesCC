@@ -2,33 +2,16 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repo') {
+        stage('Checkout') {
             steps {
-                echo 'Cloning repository...'
+                checkout scm
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Build process here'
+                echo 'Build Success'
             }
-        }
-
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploying application...'
-            }
-        }
-    }
-}
-
-            echo 'Deployment failed!'
         }
     }
 }
