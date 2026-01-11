@@ -17,7 +17,7 @@ pipeline {
             }
         }
 
-        stage('Build Lungsurin') {
+        stage('Build') {
             steps {
                 echo 'Build Lungsurin'
             }
