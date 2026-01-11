@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'nodejs'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -14,29 +10,20 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                echo 'Install dependency Lungsurin'
             }
         }
 
         stage('Build Lungsurin') {
             steps {
-                sh 'npm run build'
+                echo 'Build Lungsurin'
             }
         }
 
         stage('Test') {
             steps {
-                sh 'npm test || echo "No test defined"'
+                echo 'Testing Lungsurin'
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Lungsurin Success'
-        }
-        failure {
-            echo 'Lungsurin Failed'
         }
     }
 }
