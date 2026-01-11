@@ -20,9 +20,9 @@ Lungsurin adalah aplikasi marketplace barang bekas yang dirancang khusus untuk m
 - 📦 **Sistem Slot**: Setiap user memiliki kuota slot untuk posting barang (default 3 slot).
 - 🔍 **Pencarian & Filter**: Filter berdasarkan lokasi kampus, rentang harga, dan kata kunci.
 - 📍 **Integrasi GPS**: Deteksi lokasi untuk menentukan titik COD.
-- 💬 **Manajemen Profil**: Lengkapi profil dengan nomor HP, lokasi kampus, dan informasi default.
-- 🎨 **UI Modern**: Desain responsif dengan dark mode support.
-- 🏫 **Multi Kampus**: Support untuk berbagai lokasi kampus dan asrama.
+- 💬 **Manajemen Profil**: Lengkapi profil dengan nomor HP, lokasi kampus, dan informasi default
+- 🎨 **UI Modern**: Desain responsif dengan dark mode support
+- 🏫 **Multi Kampus**: Support untuk berbagai lokasi kampus dan asrama
 
 ## 🚀 Instalasi
 
